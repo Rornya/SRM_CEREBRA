@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат</title>
+</head>
+<body>
+    <h1>Чат</h1>
+    <div id="messages">
+        {% for message in chat.messages.all %}
+            <p><strong>{{ message.sender.username }}:</strong> {{ message.content }} <em>{{ message.timestamp }}</em></p>
+        {% endfor %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <textarea name="content" rows="3" cols="50" placeholder="Введите сообщение..."></textarea>
+        <button type="submit">Отправить</button>
+    </form>
+</body>
+</html>

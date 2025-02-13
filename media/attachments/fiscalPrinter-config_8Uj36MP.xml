@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<moduleConfig xsi:schemaLocation="http://crystals.ru/cash/settings ../../module-config.xsd" settingsGroup="equipment" visible="true" description="Фискальный принтер" xmlns="http://crystals.ru/cash/settings" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <property key="provider" value="uz_fiscaldrive" type="pluginName" description="Провайдер"/>
+    <property key="model"/>
+    <!--налоги-->
+    <property key="taxesCollection">
+        <property key="taxes">
+            <property key="ValueAddedTax">
+                <property key="index" value="0"/>
+                <property key="value" value="20.0"/>
+                <property key="name" value="НДС 20%"/>
+                <property key="valueInProduct">
+                    <property key="18.0" value="НДС 18%"/>
+                    <property key="20.0"/>
+                </property>
+            </property>
+            <property key="ValueAddedTax">
+                <property key="index" value="1"/>
+                <property key="value" value="12.0"/>
+                <property key="name" value="НДС 12%"/>
+                <property key="valueInProduct">
+                    <property key="12.0"/>
+                </property>
+            </property>
+            <property key="ValueAddedTax">
+                <property key="index" value="2"/>
+                <property key="value" value="0.0"/>
+                <property key="name" value="НДС 0%"/>
+                <property key="valueInProduct">
+                    <property key="0.0"/>
+                </property>
+            </property>
+            <property key="ValueAddedTax">
+                <property key="index" value="3"/>
+                <property key="value" value="0.0"/>
+                <property key="name" value="Без НДС"/>
+                <property key="valueInProduct">
+                    <property key="-1.0"/>
+                </property>
+            </property>
+            <property key="ValueAddedTax">
+                <property key="index" value="4"/>
+                <property key="value" value="20.0"/>
+                <property key="name" value="НДС 20/120"/>
+                <property key="valueInProduct">
+                    <property key="-18.0" value="НДС 18/118"/>
+                    <property key="-20.0"/>
+                </property>
+            </property>
+            <property key="ValueAddedTax">
+                <property key="index" value="5"/>
+                <property key="value" value="10.0"/>
+                <property key="name" value="НДС 10/110"/>
+                <property key="valueInProduct">
+                    <property key="-10.0"/>
+                </property>
+            </property>
+        </property>
+    </property>
+</moduleConfig>

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 1200px;">
+    <h1 class="text-center">Статистика пользователя: {{ user.get_full_name }}</h1>
+
+    <!-- Кнопки для перехода между личной статистикой и статистикой сотрудников -->
+    {% if request.user.userprofile.full_statistics or request.user.is_superuser %}
+        <div class="text-end mb-3">
+            <a href="{% url 'department_statistics' %}" class="btn btn-primary btn-lg shadow-sm" style="background-color: #007bff; border: none; border-radius: 25px; padding: 10px 20px;">
+                <i class="bi bi-bar-chart-line"></i> Перейти к статистике сотрудников
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Оценка продуктивности пользователя -->
+    <div class="card my-4">
+        <div class="card-header text-center">
+            <h3>Оценка продуктивности пользователя</h3>
+        </div>
+        <div class="card-body text-center">
+            <h4>Рейтинг пользователя: <span class="badge bg-primary">{{ user_rating }}</span></h4>
+        </div>
+    </div>
+
+    <!-- Таблица статистики пользователя -->
+    <div class="row mt-5">
+        <div class="col-lg-12">
+            <div class="table-responsive"> <!-- Добавлен контейнер для скроллинга -->
+                <table class="table table-striped table-bordered text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Проекты (Автор)</th>
+                            <th>Проекты (Участник)</th>
+                            <th>Задачи (Автор)</th>
+                            <th>Задачи (Исполнитель)</th>
+                            <th>Задачи (Ассистент)</th>
+                            <th>Заявки (Автор)</th>
+                            <th>Заявки (Исполнитель)</th>
+                            <th>Заявки (Ассистент)</th>
+                            <th>Просроченные задачи</th>
+                            <th>Просроченные заявки</th>
+                            <th>Возвраты задач</th>
+                            <th>Возвраты заявок</th>
+                            <th>Рейтинг</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ projects_author }}</td>
+                            <td>{{ projects_participant }}</td>
+                            <td>{{ tasks_author }}</td>
+                            <td>{{ tasks_executor }}</td>
+                            <td>{{ tasks_assistant }}</td>
+                            <td>{{ tickets_author }}</td>
+                            <td>{{ tickets_executor }}</td>
+                            <td>{{ tickets_assistant }}</td>
+                            <td>{{ overdue_tasks }}</td>
+                            <td>{{ overdue_tickets }}</td>
+                            <td>{{ reworked_tasks }}</td>
+                            <td>{{ reworked_tickets }}</td>
+                            <td><span class="badge bg-success">{{ user_rating }}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <!-- Графики -->
+        <div class="col-lg-6">
+            <h3 class="text-center">Задачи пользователя</h3>
+            <canvas id="tasksChart"></canvas>
+        </div>
+        <div class="col-lg-6">
+            <h3 class="text-center">Заявки пользователя</h3>
+            <canvas id="ticketsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Формула расчета рейтинга -->
+    <div class="card mt-5">
+        <div class="card-header text-center">
+            <h3>Формулы расчета рейтинга</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Рейтинг пользователя:</strong> (Вовремя выполненные задачи + Вовремя выполненные заявки) * 10 - (Просрочки задач + Просрочки заявок) * 5 - (Возвраты задач + Возвраты заявок) * 3</p>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const tasksData = {
+        labels: ["Автор", "Исполнитель", "Ассистент"],
+        datasets: [
+            {
+                label: "Задачи",
+                data: [{{ tasks_author }}, {{ tasks_executor }}, {{ tasks_assistant }}],
+                backgroundColor: ["#4CAF50", "#2196F3", "#FFC107"],
+            },
+        ],
+    };
+
+    const ticketsData = {
+        labels: ["Автор", "Исполнитель", "Ассистент"],
+        datasets: [
+            {
+                label: "Заявки",
+                data: [{{ tickets_author }}, {{ tickets_executor }}, {{ tickets_assistant }}],
+                backgroundColor: ["#FF5722", "#3F51B5", "#9C27B0"],
+            },
+        ],
+    };
+
+    new Chart(document.getElementById("tasksChart"), {
+        type: "bar",
+        data: tasksData,
+    });
+
+    new Chart(document.getElementById("ticketsChart"), {
+        type: "bar",
+        data: ticketsData,
+    });
+</script>
+
+{% endblock %}

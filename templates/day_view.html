@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Данные за день{% endblock %}
+{% block content %}
+    <h1>Данные за {{ selected_date }}</h1>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% else %}
+        <h2>Задачи</h2>
+        <ul>
+            {% for task in tasks %}
+            <li><a href="{% url 'task_detail' task.id %}">{{ task.title }}</a> - дедлайн: {{ task.deadline }}</li>
+            {% empty %}
+            <li>Нет задач</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Заявки</h2>
+        <ul>
+            {% for ticket in tickets %}
+            <li><a href="{% url 'ticket_detail' ticket.id %}">{{ ticket.title }}</a> - дедлайн: {{ ticket.deadline }}</li>
+            {% empty %}
+            <li>Нет заявок</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Проекты</h2>
+        <ul>
+            {% for project in projects %}
+            <li><a href="{% url 'project_detail' project.id %}">{{ project.title }}</a> - дата завершения: {{ project.end_date }}</li>
+            {% empty %}
+            <li>Нет проектов</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Мероприятия</h2>
+        <ul>
+            {% for activity in activities %}
+                <li><a href="{% url 'activity_detail' activity.id %}">{{ activity.title }}</a> - время: {{ activity.activity_time }}</li>
+            {% empty %}
+                <li>Нет мероприятий</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Записи из ежедневника</h2>
+        <ul>
+            {% for entry in diary_entries %}
+                <li><a href="{% url 'diary_entry_detail' entry.id %}">{{ entry.title }}</a> - дата: {{ entry.entry_date }}</li>
+            {% empty %}
+                <li>Нет записей</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

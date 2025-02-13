@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Диаграмма Ганта</title>
+    <div style="text-align: right; margin-bottom: 10px;">
+        <a href="{% url 'gantt_fullscreen' %}" target="_blank" class="btn btn-primary">Развернуть</a>
+    </div>    
+    <!-- Подключаем локальные файлы -->
+    <link rel="stylesheet" href="/static/css/frappe-gantt.css">
+    <script src="/static/js/frappe-gantt.umd.js"></script>    
+</head>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 10px;
+            background: #f4f4f4;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+
+        #gantt {
+            flex: 1;
+            width: 100%;
+            height: calc(100vh - 50px); /* Высота страницы минус заголовок */
+            overflow-y: auto; /* Прокрутка по вертикали */
+            border: 1px solid #ccc; /* Для границы */
+    }
+
+
+        .project-bar .bar, .project-bar .bar-progress {
+            fill: #FF9800 !important;
+            stroke: #FF9800 !important;
+        }
+
+        .bar-blue .bar, .bar-blue .bar-progress {
+            fill: #2196F3 !important;
+            stroke: #2196F3 !important;
+        }
+
+        .bar-green .bar, .bar-green .bar-progress {
+            fill: #4CAF50 !important;
+            stroke: #4CAF50 !important;
+        }
+
+        .bar-purple .bar, .bar-purple .bar-progress {
+            fill: #9C27B0 !important;
+            stroke: #9C27B0 !important;
+        }
+
+        .bar-red .bar, .bar-red .bar-progress {
+            fill: #FF5722 !important;
+            stroke: #FF5722 !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>Диаграмма Ганта</h1>
+    <div id="gantt"></div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const tasks = {{ gantt_data|safe }};
+            if (!tasks || tasks.length === 0) {
+                alert("Нет данных для отображения диаграммы.");
+                return;
+            }
+
+            // Группировка задач
+            const groupedTasks = [];
+            const dependencies = [];
+            const projectTasksMap = {};
+
+            tasks.forEach(task => {
+                if (task.custom_class === "project-bar") {
+                    groupedTasks.push(task);
+                    projectTasksMap[task.id] = [];
+                } else if (task.custom_class === "bar-blue" && task.dependencies) {
+                    projectTasksMap[task.dependencies] = projectTasksMap[task.dependencies] || [];
+                    projectTasksMap[task.dependencies].push(task);
+                } else {
+                    groupedTasks.push(task);
+                }
+            });
+
+            // Добавление задач проекта под проекты
+            groupedTasks.forEach((task, index) => {
+                if (projectTasksMap[task.id]) {
+                    groupedTasks.splice(index + 1, 0, ...projectTasksMap[task.id]);
+                }
+            });
+
+            const gantt = new Gantt("#gantt", groupedTasks, {
+                view_mode: "Day",
+                language: "ru",
+                custom_popup_html: function (task) {
+                    return `<div class="details-container">
+                        <h5>${task.name}</h5>
+                        <p>Начало: ${task.start}</p>
+                        <p>Окончание: ${task.end}</p>
+                    </div>`;
+                },
+            });
+
+            // Установить зависимости
+            groupedTasks.forEach(task => {
+                if (task.dependencies) {
+                    gantt.make_dependency(task.dependencies, task.id);
+                }
+            });
+
+                // Прокручиваем диаграмму к сегодняшнему дню
+                const today = new Date();
+                gantt.set_scroll_position(today); // Устанавливаем прокрутку к сегодняшнему дню
+            
+
+            // Автоматическое изменение высоты контейнера
+            const resizeGantt = () => {
+                const ganttContainer = document.getElementById("gantt");
+                ganttContainer.style.height = `${window.innerHeight - 50}px`; // Высота окна минус заголовок
+            };
+
+            // Устанавливаем корректную высоту при загрузке
+            resizeGantt();
+            window.addEventListener("resize", resizeGantt);
+        });
+    </script>
+</body>
+</html>

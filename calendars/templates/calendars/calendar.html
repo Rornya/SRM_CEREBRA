@@ -1,0 +1,198 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Календарь событий</title>
+    <link href="{% static 'css/fullcalendar.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/custom-calendar.css' %}" rel="stylesheet">
+    <script src="{% static 'js/fullcalendar.min.js' %}"></script>
+    <style>
+        /* Стили для точек событий */
+        .event-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+        }
+        
+        .blue-dot { background-color: #007bff; }  /* Синий для задач */
+        .green-dot { background-color: #28a745; }  /* Зеленый для заявок */
+        .red-dot { background-color: #ff0000; }  /* Красный для проектов */
+        .orange-dot { background-color: #ff5722; }  /* Оранжевый для ежедневника */
+
+        /* Отключение заливки фона для всех событий */
+        .fc-daygrid-day-bg {
+            background-color: transparent !important; /* Прозрачный фон */
+        }
+
+        /* Увеличение отступов для заголовков дней недели */
+        .fc .fc-col-header-cell {
+            padding: 0 15px; /* Увеличение отступов для выравнивания */
+        }
+
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            flex-wrap: wrap; /* Для автоматического переноса на маленьких экранах */
+            gap: 20px; /* Расстояние между блоками */
+        }
+
+        .center-panel {
+            flex: 1;
+            min-width: 370px; /* Минимальная ширина для календаря */
+            max-width: 100%; /* Ограничение по ширине */
+            background-color: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .right-panel {
+            flex: 1;
+            min-width: 300px; /* Минимальная ширина для панели объявлений */
+            max-width: 100%; /* Ограничение по ширине */
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+/* Медиа-запрос для устройств с шириной экрана меньше 768px */
+@media (max-width: 768px) {
+    .dashboard {
+        flex-direction: column; /* Переключаемся на вертикальный вид */
+        align-items: center; /* Центруем содержимое */
+        gap: 10px; /* Уменьшаем расстояние между блоками */
+    }
+
+    .center-panel {
+        width: 90%; /* Ограничиваем ширину календаря */
+    }
+
+    .right-panel {
+        width: 90%; /* Ограничиваем ширину панели объявлений */
+    }
+}
+
+/* Медиа-запрос для устройств с шириной экрана меньше 600px */
+@media (max-width: 600px) {
+    .center-panel, .right-panel {
+        padding: 5px; /* Уменьшаем внутренние отступы */
+    }
+
+    #calendar {
+        max-width: 100%; /* Ограничиваем максимальную ширину */
+        height: auto; /* Гибкая высота для сохранения пропорций */
+    }
+
+    .fc {
+        font-size: 10px; /* Уменьшаем размер шрифта для компактности */
+    }
+
+    .fc-toolbar-title {
+        font-size: 14px; /* Уменьшаем размер заголовка */
+        text-align: center;
+    }
+
+    .fc-daygrid-day {
+        height: 40px; /* Фиксированная высота ячеек */
+        width: 30px;
+        text-align: center; /* Центрируем текст в ячейках */
+    }
+
+    .fc-daygrid-day-top {
+        justify-content: center; /* Центруем верхнюю часть ячейки */
+    }
+}
+
+/* Для маленьких экранов */
+@media (max-width: 768px) {
+    .fc .fc-col-header-cell,
+    .fc .fc-daygrid-day {
+        font-size: 12px; /* Уменьшаем размер шрифта */
+    }
+
+    </style>
+</head>
+<body>
+
+<h1>Календарь событий</h1>
+
+<div id="calendar" style="max-width: 100%; margin: 0 auto;"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            height: 'auto',
+            locale: 'ru',
+            firstDay: 1,  // Начало недели с понедельника
+            headerToolbar: {
+                start: 'today prev,next',  // Кнопки в левом углу
+                center: 'title',  // Заголовок по центру
+                end: ''  // Убираем кнопки справа
+            },
+            events: [
+                {% for task in tasks %}
+                {
+                    title: 'Задача: {{ task.title }}',
+                    start: '{{ task.deadline|date:"Y-m-d" }}',
+                    display: 'background'
+                },
+                {% endfor %}
+
+                {% for ticket in tickets %}
+                {
+                    title: 'Заявка: {{ ticket.title }}',
+                    start: '{{ ticket.deadline|date:"Y-m-d" }}',
+                    display: 'background'
+                },
+                {% endfor %}
+
+                {% for entry in diary_entries %}
+                {
+                    title: 'Ежедневник: {{ entry.title }}',
+                    start: '{{ entry.entry_date|date:"Y-m-d" }}',
+                    display: 'background'
+                },
+                {% endfor %}
+
+                {% for project in projects %}
+                {
+                    title: 'Окончание проекта: {{ project.title }}',
+                    start: '{{ project.end_date|date:"Y-m-d" }}',
+                    display: 'background'
+                },
+                {% endfor %}
+            ],
+            eventContent: function(arg) {
+                let dotEl = document.createElement('div');
+                dotEl.classList.add('event-dot');
+
+                if (arg.event.title.includes('Задача')) {
+                    dotEl.classList.add('blue-dot');
+                } else if (arg.event.title.includes('Заявка')) {
+                    dotEl.classList.add('green-dot');
+                } else if (arg.event.title.includes('Окончание проекта')) {
+                    dotEl.classList.add('red-dot');
+                } else if (arg.event.title.includes('Ежедневник')) {
+                    dotEl.classList.add('orange-dot');
+                }
+
+                return { domNodes: [dotEl] };
+            },
+            dateClick: function(info) {
+                var dateUrl = "{% url 'day_view' 'DATE_PLACEHOLDER' %}".replace('DATE_PLACEHOLDER', info.dateStr);
+                window.location.href = dateUrl;
+            }
+        });
+        calendar.render();
+    });
+</script>
+
+</body>
+</html>

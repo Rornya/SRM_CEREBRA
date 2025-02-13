@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить наблюдателя к заявке{% endblock %}
+
+{% block content %}
+<h1>Добавить наблюдателя к заявке: {{ ticket.title }}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Добавить наблюдателя</button>
+</form>
+<a href="{% url 'ticket_detail' ticket.id %}">Назад к заявке</a>
+{% endblock %}

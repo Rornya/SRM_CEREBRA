@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Создать новую заявку{% endblock %}
+
+{% block content %}
+<h1>Создать новую заявку</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Отображение ошибок с красным цветом и увеличенным шрифтом -->
+    {% if form.errors %}
+        <div style="color: red; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Поле для заголовка заявки -->
+    <label for="id_title">{{ form.title.label }}</label>
+    {{ form.title }}
+    {% if form.title.errors %}
+        <div class="error">{{ form.title.errors }}</div>
+    {% endif %}
+    <br>
+    
+    <!-- Поле для выбора отдела -->
+    <label for="id_department">{{ form.department.label }}</label>
+    {{ form.department }}
+    {% if form.department.errors %}
+        <div class="error">{{ form.department.errors }}</div>
+    {% endif %}
+    <br>
+
+    <!-- Динамическая загрузка исполнителей после выбора отдела -->
+    <label for="id_assignee">{{ form.assignee.label }}</label>
+    {{ form.assignee }}
+    {% if form.assignee.errors %}
+        <div class="error">{{ form.assignee.errors }}</div>
+    {% endif %}
+    <br>
+
+    <!-- Поле для дедлайна -->
+    <label for="id_deadline">{{ form.deadline.label }}</label>
+    {{ form.deadline }}
+    {% if form.deadline.errors %}
+        <div class="error">{{ form.deadline.errors }}</div>
+    {% endif %}
+    <br>
+
+    <!-- Поле для описания заявки -->
+    <label for="id_description">{{ form.description.label }}</label>
+    {{ form.description }}
+    {% if form.description.errors %}
+        <div class="error">{{ form.description.errors }}</div>
+    {% endif %}
+    <br>
+
+    <button type="submit" class="btn btn-success">Создать заявку</button>
+</form>
+
+<p><a href="{% url 'ticket_list' %}">Вернуться к списку заявок</a></p>
+
+<!-- Сценарий для динамического обновления списка исполнителей -->
+<script>
+    document.getElementById("id_department").onchange = function() {
+        var form = this.form;
+        form.submit();
+    };
+</script>
+{% endblock %}

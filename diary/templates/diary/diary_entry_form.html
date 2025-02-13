@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Создать запись{% endblock %}
+
+{% block content %}
+<h1>Создать запись</h1>
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Отображение ошибок с красным цветом и увеличенным шрифтом -->
+    {% if form.errors %}
+        <div style="color: red; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+{% endblock %}

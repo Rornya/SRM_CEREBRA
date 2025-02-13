@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1>Личный кабинет</h1>
+
+    <!-- Информация о пользователе -->
+    <section class="user-info">
+        <h2>Информация о пользователе</h2>
+        <p><strong>Имя:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <!-- <a href="{% url 'edit_profile' %}">Редактировать профиль</a> -->
+    </section>
+
+    <hr>
+
+    <!-- Проекты пользователя -->
+    <section class="user-projects">
+        <h2>Ваши проекты</h2>
+        <ul>
+            {% for project in projects %}
+                <li>
+                    <a href="{% url 'project_detail' project.id %}">{{ project.title }}</a> 
+                    - Статус: {{ project.get_status_display }}
+                </li>
+            {% empty %}
+                <li>Нет активных проектов.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <hr>
+
+    <!-- Задачи пользователя -->
+    <section class="user-tasks">
+        <h2>Ваши задачи</h2>
+        <ul>
+            {% for task in tasks %}
+                <li>
+                    <a href="{% url 'task_detail' task.id %}">{{ task.title }}</a> 
+                    - Дедлайн: {{ task.deadline|date:"d M Y" }} 
+                    - Статус: {{ task.get_status_display }}
+                </li>
+            {% empty %}
+                <li>Нет активных задач.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <hr>
+
+    <!-- Календарь -->
+    <section class="user-calendar">
+        <h2>Календарь</h2>
+        <div id="calendar"></div>
+    </section>
+
+    <hr>
+
+    <!-- Уведомления -->
+    <section class="user-notifications">
+        <h2>Уведомления</h2>
+        <ul>
+            {% for notification in notifications %}
+                <li>{{ notification.message }} - {{ notification.created_at|date:"d M Y H:i" }}</li>
+            {% empty %}
+                <li>Нет новых уведомлений.</li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+
+<!-- Скрипт для календаря -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: [
+                {% for task in tasks %}
+                {
+                    title: '{{ task.title }}',
+                    start: '{{ task.deadline|date:"Y-m-d" }}',
+                    color: 'blue'
+                },
+                {% endfor %}
+                {% for project in projects %}
+                {
+                    title: '{{ project.title }}',
+                    start: '{{ project.end_date|date:"Y-m-d" }}',
+                    color: 'green'
+                },
+                {% endfor %}
+            ]
+        });
+        calendar.render();
+    });
+</script>
+
+{% endblock %}

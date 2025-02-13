@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}Загруженность сотрудника{% endblock %}
+
+{% block content %}
+<h1>Загруженность сотрудника {{ employee.username }}</h1>
+<p>Проекты: {{ projects.count }}</p>
+<p>Задачи: {{ tasks.count }}</p>
+<p>Заявки: {{ tickets.count }}</p>
+{% endblock %}

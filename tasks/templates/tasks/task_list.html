@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Список проектных задач для проекта {{ project.title }}{% endblock %}
+
+{% block content %}
+    <h1>Проектные задачи для проекта: {{ project.title }}</h1>
+
+    <a href="{% url 'task_create' project.id %}" class="btn btn-primary">Создать новую проектную задачу</a>
+    
+    <ul>
+        {% for task in tasks %}
+            <li style="{% if task.status == 'completed' or task.status == 'early_completed' %}text-decoration: line-through; color: gray;{% elif task.is_overdue %}color: red;{% endif %}">
+                <a href="{% url 'task_detail' task.id %}">{{ task.title }}</a> - 
+                {{ task.get_status_display }}
+                
+                {% if task.is_overdue and task.status != 'completed' and task.status != 'early_completed' %}
+                    (Просрочено)
+                {% elif task.deadline %}
+                    (Дедлайн: {{ task.deadline|date:"d.m.Y" }})
+                {% else %}
+                    (Дедлайн не установлен)
+                {% endif %}
+
+                {% if task.assignee == request.user %}
+                    (Вы - исполнитель)
+                {% elif task.is_observer %}
+                    (Вы - наблюдатель)
+                {% elif task.is_assistant %}
+                    (Вы - ассистент)
+                {% endif %}
+
+                <!-- Кнопка удаления задачи с подтверждением -->
+                {% if request.user == task.author or perms.tasks.delete_task %}
+                    <form action="{% url 'delete_task' task.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены, что хотите удалить эту задачу?');">Удалить</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>Нет задач для отображения.</li>
+        {% endfor %}
+    </ul>
+    
+    <a href="{% url 'project_detail' project.id %}" class="btn btn-secondary">Вернуться в проект</a>
+{% endblock %}

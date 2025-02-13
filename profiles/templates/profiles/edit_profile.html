@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактировать профиль{% endblock %}
+
+{% block content %}
+<h1>Редактировать профиль</h1>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <!-- ФИО -->
+    <label for="id_full_name">ФИО:</label>
+    {{ form.full_name }}
+
+    <!-- Должность -->
+    <label for="id_position">Должность:</label>
+    {{ form.position }}
+
+    <!-- Отдел -->
+    <label for="id_department">Отдел:</label>
+    {{ form.department }}
+
+    <!-- Внутренний телефон -->
+    <label for="id_internal_phone">Телефон внутренний:</label>
+    {{ form.internal_phone }}
+
+    <!-- Мобильный телефон -->
+    <label for="id_mobile_phone">Телефон мобильный:</label>
+    {{ form.mobile_phone }}
+
+    <!-- Email -->
+    <label for="id_email">Email:</label>
+    {{ form.email }}
+
+    <!-- Фото профиля -->
+    {% if form.instance.profile_photo %}
+        <label>Фото профиля:</label>
+        <p>
+            На данный момент: 
+            <a href="{{ form.instance.profile_photo.url }}">{{ form.instance.profile_photo.name }}</a>
+        </p>
+        <label>
+            <input type="checkbox" name="profile_photo-clear"> Очистить
+        </label>
+    {% else %}
+        <label for="id_profile_photo">Загрузить фото:</label>
+        {{ form.profile_photo }}
+    {% endif %}
+
+    <!-- Дата рождения -->
+    <label for="id_birthday">Дата рождения:</label>
+    {{ form.birthday }}
+
+    <!-- Дата устройства -->
+    <label for="id_hire_date">Дата устройства в компанию:</label>
+    {{ form.hire_date }}
+
+    <!-- Кнопка сохранения -->
+    <button type="submit">Сохранить изменения</button>
+</form>
+{% endblock %}

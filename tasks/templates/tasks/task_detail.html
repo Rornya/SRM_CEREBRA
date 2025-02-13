@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Детали задачи{% endblock %}
+
+{% block content %}
+<h1>{{ task.title }}</h1>
+
+<!-- Уведомление об автоматическом одобрении -->
+{% if auto_approved %}
+    <div class="alert alert-info">
+        Задача была автоматически одобрена, так как автор задачи является инициатором проекта.
+    </div>
+{% endif %}
+
+<h6>Автор: {{ task.author.get_full_name }}</h6>
+<h6>Исполнитель: {{ task.assignee.get_full_name }}</h6>
+
+<hr>
+
+<h2>{{ task.description|linebreaks }}</h2>
+
+<hr>
+
+<h4>Ассистенты:</h4>
+<ul>
+    {% for assistant in task.task_assistants.all %}
+        <li>
+            {{ assistant.user.get_full_name }}
+            {% if request.user == task.author or request.user == task.assignee %}
+                <a href="{% url 'remove_assistant' 'task' task.id assistant.id %}" class="btn btn-danger btn-sm d-inline-block me-2" onclick="return confirm('Вы уверены, что хотите удалить ассистента?');">Удалить</a>
+            {% endif %}
+        </li>
+    {% empty %}
+        <li>Нет ассистентов</li>
+    {% endfor %}
+</ul>
+
+{% if messages %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if task.status != 'completed' %}
+    <a href="{% url 'add_assistant' 'task' task.id %}" class="btn btn-primary d-inline-block me-2">Добавить ассистента</a>
+{% endif %}
+
+<hr>
+
+<h3>Проект: {{ task.project.title }}</h3>
+<p>Статус: {{ task.get_status_display }}</p>
+<h6>Дедлайн: {{ task.deadline }}</h6>
+<p>Количество возвратов на доработку: {{ task.revision_count }}</p>
+
+<hr>
+
+<div class="button-group d-flex flex-wrap gap-2">
+    <!-- Кнопки для исполнителя -->
+    {% if request.user == task.assignee and task.status != 'completed' %}
+        {% if task.status == 'new' %}
+            <form method="post" action="{% url 'accept_task' task.id %}" class="d-inline-block me-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Принять</button>
+            </form>
+        {% elif task.status == 'in_progress' %}
+            <form method="post" class="d-inline-block me-2">
+                {% csrf_token %}
+                <button type="submit" name="complete_task" class="btn btn-success me-2" onclick="return confirm('Вы уверены, что хотите завершить задачу?');">Выполнено</button>
+                <button type="submit" name="request_extension_task" class="btn btn-warning" onclick="return confirm('Запросить продление задачи?');">Запросить продление</button>
+            </form>
+        {% elif task.status == 'revision' %}
+            <form method="post" class="d-inline-block me-2">
+                {% csrf_token %}
+                <button type="submit" name="complete_task" class="btn btn-success" onclick="return confirm('Завершить доработку задачи?');">Завершить доработку</button>
+            </form>
+        {% endif %}
+    {% endif %}
+
+    <!-- Кнопки для автора -->
+    {% if request.user == task.author and task.status != 'completed' %}
+        {% if task.status == 'done' %}
+            <form method="post" class="d-inline-block me-2">
+                {% csrf_token %}
+                <button type="submit" name="confirm_completion" class="btn btn-success me-2" onclick="return confirm('Подтвердить выполнение задачи?');">Подтвердить выполнение</button>
+                <button type="submit" name="return_for_revision" class="btn btn-danger me-2" onclick="return confirm('Вернуть задачу на доработку?');">Вернуть на доработку</button>
+            </form>
+        {% elif task.status == 'extension_requested' %}
+            <form method="post" class="d-inline-block me-2">
+                {% csrf_token %}
+                <button type="submit" name="approve_extension" class="btn btn-success me-2" onclick="return confirm('Разрешить продление задачи?');">Разрешить продление</button>
+                <button type="submit" name="deny_extension" class="btn btn-danger me-2" onclick="return confirm('Отказать в продлении задачи?');">Отказать в продлении</button>
+            </form>
+        {% endif %}
+        
+        <form method="post" class="d-inline-block me-2" onsubmit="return confirm('Вы уверены, что хотите завершить задачу досрочно?');">
+            {% csrf_token %}
+            <button type="submit" name="early_complete_task" class="btn btn-warning">Завершить досрочно</button>
+        </form>
+    {% endif %}
+
+    {% if user == task.author %}
+      <a href="{% url 'edit_task' task.id %}" class="btn btn-primary d-inline-block me-2">Редактировать</a>
+    {% endif %}
+</div>
+
+{% if request.user == task.project.manager and task.status == 'approval_pending' %}
+    <h4>Ожидает одобрения инициатором проекта</h4>
+    <form method="post" action="{% url 'approve_task' task.id %}" class="d-inline-block me-2" onsubmit="return confirm('Одобрить выполнение задачи?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Одобрить</button>
+    </form>
+    <form method="post" action="{% url 'reject_task' task.id %}" class="d-inline-block me-2" onsubmit="return confirm('Отклонить выполнение задачи?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Отклонить</button>
+    </form>
+{% endif %}
+
+{% if task.status == 'completed' %}
+    <p>Задача завершена и подтверждена автором.</p>
+{% endif %}
+
+<hr>
+
+<h2>Чат задачи</h2>
+<div id="chat">
+    <ul>
+        {% for message in chat_messages %}
+            <li>
+                <strong>{{ message.user.get_full_name }}:</strong>
+                <span>{{ message.message|linebreaks }}</span> <!-- Добавлен фильтр linebreaks -->
+                <em>{{ message.created_at }}</em>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% if task.status != 'completed' %}
+    <form method="post" class="d-inline-block me-2">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="add_message" class="btn btn-primary">Отправить сообщение</button>
+    </form>
+{% endif %}
+
+<hr>
+
+<h2>Загрузить файл</h2>
+{% if task.status != 'completed' %}
+<form method="post" enctype="multipart/form-data" class="d-inline-block me-2">
+    {% csrf_token %}
+    {{ attachment_form.as_p }}
+    <button type="submit" name="upload_file" class="btn btn-primary">Загрузить файл</button>
+</form>
+{% endif %}
+
+<h2>Прикрепленные файлы</h2>
+<ul>
+    {% for attachment in task.attachments.all %}
+        <li><a href="{{ attachment.file.url }}">{{ attachment.file.name|cut:"attachments/" }}</a></li>
+    {% endfor %}
+</ul>
+
+<hr>
+
+<p><a href="{% url 'task_list' project_id=task.project.id %}" class="btn btn-secondary d-inline-block me-2">Вернуться к списку проектных задач</a></p>
+
+{% endblock %}

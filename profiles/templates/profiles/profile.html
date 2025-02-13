@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% load static %} 
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<h1>Профиль пользователя</h1>
+
+<!-- Окно для отображения фото профиля -->
+<div class="profile-photo">
+    {% if user.profile_from_profiles.profile_photo %}
+        <img src="{{ user.profile_from_profiles.profile_photo.url }}" alt="Фото профиля" style="width:150px; height:150px; object-fit:cover; border-radius:50%; border:2px solid #ddd;">
+    {% else %}
+        <img src="{% static 'img/default-profile.png' %}" alt="Нет фото профиля" style="width:150px; height:150px; object-fit:cover; border-radius:50%; border:2px solid #ddd;">
+    {% endif %}
+</div>
+
+<div class="profile-info">
+    <p><strong>ФИО:</strong> {{ user.profile_from_profiles.full_name }}</p>
+    <p><strong>Должность:</strong> {{ user.profile_from_profiles.position }}</p>
+    <p><strong>Отдел:</strong> {{ user.profile_from_profiles.department }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Внутренний телефон:</strong> {{ user.profile_from_profiles.internal_phone }}</p>
+    <p><strong>Мобильный телефон:</strong> {{ user.profile_from_profiles.mobile_phone }}</p>
+    <p><strong>Дата рождения:</strong> {{ user.profile_from_profiles.birthday }}</p>
+    <p><strong>Дата трудоустройства:</strong> {{ user.profile_from_profiles.hire_date }}</p>
+    
+    <div class="d-flex gap-3"> <!-- Flex-контейнер для кнопок с отступом -->
+        <a href="{% url 'edit_profile' %}" class="btn btn-primary" style="background-color: #007bff;">Редактировать профиль</a>
+        {% if user == request.user %}
+        {% endif %}
+    
+        {% if request.user.userprofile.can_post_news %}
+            <a href="{% url 'birthdays_list' %}" class="btn btn-primary">Дни Рождения</a>
+        {% endif %}
+    
+        <!-- Кнопка для смены пароля -->
+        <a href="{% url 'password_change' %}" class="btn btn-warning" style="background-color: #ffc107;">Сменить пароль</a>
+    </div>
+</div>
+
+{% endblock %}
+

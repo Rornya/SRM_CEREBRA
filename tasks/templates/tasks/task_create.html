@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Создание новой проектной задачи{% endblock %}
+
+{% block content %}
+    <h1>Создать новую проектную задачу</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Поле для заголовка -->
+        <label for="id_title">{{ form.title.label }}</label>
+        {{ form.title }} <br>
+
+        <!-- Поле для выбора исполнителя (участники проекта) -->
+        <label for="id_assignee">{{ form.assignee.label }}</label>
+        <select name="assignee" id="id_assignee">
+            <option value="" disabled selected>Выберите исполнителя</option>
+            {% for participant in project.participants.all %}
+                <option value="{{ participant.user.id }}">{{ participant.user.get_full_name }}</option>
+            {% endfor %}
+        </select>
+        {% if form.assignee.errors %}
+            <div style="color: red;">{{ form.assignee.errors.0 }}</div>
+        {% endif %}
+        <br>
+
+        <!-- Поле для дедлайна -->
+        <label for="id_deadline">{{ form.deadline.label }}</label>
+        {{ form.deadline }} <br>
+
+        <!-- Поле для описания -->
+        <label for="id_description">{{ form.description.label }}</label>
+        {{ form.description }} <br>
+
+        <!-- Поле для выбора наблюдателей -->
+        <!-- 
+        <select id="id_observer" name="observer">
+            <option value="">Выберите наблюдателя</option>
+            {% for observer in observer_users %}
+                <option value="{{ observer.id }}">{{ observer.user.get_full_name }}</option>
+            {% endfor %}
+        </select> <br> -->
+
+        <button type="submit" class="btn btn-success">Создать задачу</button>
+    </form>
+
+    <p><a href="{% url 'task_list' project_id=project_id %}">Вернуться к списку задач</a></p>
+{% endblock %}

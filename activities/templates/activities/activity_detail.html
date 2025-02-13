@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Детали мероприятия{% endblock %}
+
+{% block content %}
+<h1>{{ activity.title }}</h1>
+
+<p><strong>Описание:</strong> {{ activity.description }}</p>
+<p><strong>Дата:</strong> {{ activity.activity_date }}</p>
+<p><strong>Время:</strong> {{ activity.activity_time }}</p>
+
+<h4>Участники</h4>
+<ul>
+    {% for participant in activity.participants.all %}
+        <li>{{ participant.user.first_name }} {{ participant.user.last_name }}</li>
+    {% empty %}
+        <li>Участников пока нет.</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

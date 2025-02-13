@@ -1,0 +1,163 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Диаграмма Ганта - Полный экран{% endblock %}</title>
+    <!-- Подключаем CSS и JS -->
+    <link rel="stylesheet" href="{% static 'css/frappe-gantt.css' %}">
+    <script src="{% static 'js/frappe-gantt.umd.js' %}"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .gantt-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .scroll-wrapper-horizontal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: #f4f4f4;
+            z-index: 10;
+            overflow-x: auto;
+        }
+
+        .scroll-wrapper-horizontal div {
+            height: 20px;
+            background: transparent;
+        }
+
+        #gantt {
+            flex-grow: 1;
+            width: 100%;
+            height: calc(100vh - 20px);
+            margin-top: 20px;
+            position: relative;
+            overflow-x: auto;
+            cursor: grab;
+        }
+
+        .project-bar .bar, .project-bar .bar-progress {
+            fill: #FF9800 !important;
+            stroke: #FF9800 !important;
+        }
+
+        .bar-blue .bar, .bar-blue .bar-progress {
+            fill: #2196F3 !important;
+            stroke: #2196F3 !important;
+        }
+
+        .bar-green .bar, .bar-green .bar-progress {
+            fill: #4CAF50 !important;
+            stroke: #4CAF50 !important;
+        }
+
+        .bar-purple .bar, .bar-purple .bar-progress {
+            fill: #9C27B0 !important;
+            stroke: #9C27B0 !important;
+        }
+
+        .bar-orange .bar, .bar-orange .bar-progress {
+            fill: #FF5722 !important;
+            stroke: #FF5722 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="gantt-container">
+        <!-- Верхний горизонтальный скролл -->
+        <div class="scroll-wrapper-horizontal">
+            <div id="top-scroll"></div>
+        </div>
+        <!-- Диаграмма -->
+        <div id="gantt"></div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const tasks = {{ gantt_data|safe }};
+            if (!tasks || tasks.length === 0) {
+                alert("Нет данных для отображения диаграммы.");
+                return;
+            }
+
+            const gantt = new Gantt("#gantt", tasks, {
+                view_mode: 'Day',
+                date_format: 'YYYY-MM-DD',
+                custom_popup_html: function(task) {
+                    return `<div class="details-container">
+                                <h5>${task.name}</h5>
+                                <p>Начало: ${task.start}</p>
+                                <p>Окончание: ${task.end}</p>
+                            </div>`;
+                },
+                on_click: function (task) {
+                    if (task.link) {
+                        window.open(task.link, "_blank");
+                    }
+                },
+            });
+
+            // Устанавливаем текущий день
+            const today = new Date();
+            gantt.set_scroll_position(today);
+
+            // Верхний скролл
+            const topScroll = document.querySelector("#top-scroll");
+            const ganttContainer = document.querySelector("#gantt");
+
+            // Устанавливаем ширину верхнего скролла
+            topScroll.style.width = `${ganttContainer.scrollWidth}px`;
+
+            // Синхронизация верхнего скролла с диаграммой
+            document.querySelector(".scroll-wrapper-horizontal").addEventListener("scroll", function () {
+                ganttContainer.scrollLeft = this.scrollLeft;
+            });
+
+            ganttContainer.addEventListener("scroll", function () {
+                document.querySelector(".scroll-wrapper-horizontal").scrollLeft = ganttContainer.scrollLeft;
+            });
+
+            // Перетаскивание мышью
+            let isDragging = false;
+            let startX, scrollLeft;
+
+            ganttContainer.addEventListener("mousedown", (e) => {
+                isDragging = true;
+                startX = e.pageX - ganttContainer.offsetLeft;
+                scrollLeft = ganttContainer.scrollLeft;
+                ganttContainer.style.cursor = "grabbing";
+            });
+
+            ganttContainer.addEventListener("mouseup", () => {
+                isDragging = false;
+                ganttContainer.style.cursor = "grab";
+            });
+
+            ganttContainer.addEventListener("mouseleave", () => {
+                isDragging = false;
+                ganttContainer.style.cursor = "grab";
+            });
+
+            ganttContainer.addEventListener("mousemove", (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                const x = e.pageX - ganttContainer.offsetLeft;
+                const walk = (x - startX) * 1.5; // Скорость перемещения
+                ganttContainer.scrollLeft = scrollLeft - walk;
+            });
+        });
+    </script>
+</body>
+</html>

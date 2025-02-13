@@ -1,0 +1,204 @@
+/* Фон для всей страницы */
+body {
+    background-image: url("{% static 'images/cerebra_background.png' %}");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;  /* Фиксированный фон при прокрутке */
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+/* Стили для header */
+header {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Стили для навигации */
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 20px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Основная часть сайта */
+main {
+    background-color: rgba(255, 255, 255, 0.8);  /* Полупрозрачный белый цвет */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 120px auto 30px;  /* Отступ сверху для компенсации фиксированного header */
+}
+
+/* Стили для footer */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    margin-top: 20px;
+    border-top: 4px solid #555;
+}
+
+/* Стили для контейнеров главной страницы */
+.dashboard {
+    display: flex;
+    justify-content: space-between;
+}
+
+.left-panel, .right-panel {
+    width: 25%;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.center-panel {
+    width: 45%;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+#calendar {
+    height: 300px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+/* Стили для форм */
+form input, form textarea, form select {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px; /* Закругление углов полей */
+    border: 1px solid #ccc;
+    width: 100%;
+}
+
+form button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #45a049;
+}
+
+/* Стили для общей статистики */
+.statistics-container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.statistics-item {
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 30%;
+}
+
+.statistics-item h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.statistics-item p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Стили для блока просроченных задач и заявок */
+.overdue-container {
+    margin: 20px 0;
+    background-color: #ffe5e5;
+    padding: 10px;
+    border-left: 5px solid #ff4d4d;
+    border-radius: 5px;
+}
+
+.overdue-container p {
+    font-size: 16px;
+    color: #ff4d4d;
+}
+
+/* Стили для рейтинга звезд */
+.rating {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+.checked {
+    color: orange;
+}
+
+.fa-star {
+    font-size: 24px;
+    margin-right: 5px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .dashboard {
+        flex-direction: column;
+    }
+
+    .left-panel, .right-panel, .center-panel {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}
+
+/* Стили для ошибок формы */
+.errorlist {
+    color: red;
+    font-size: 26px;  /* Размер шрифта */
+    font-weight: bold;  /* Жирный шрифт */
+}
+
+/* Добавление фонового изображения */
+body {
+    background-image: url('../images/cerebra_background.png');
+    background-size: cover; /* Изображение будет покрывать весь экран */
+    background-position: center; /* Центрирование изображения */
+    background-repeat: no-repeat; /* Избегаем повторов изображения */
+    background-attachment: fixed; /* Фон будет оставаться на месте при прокрутке */
+}

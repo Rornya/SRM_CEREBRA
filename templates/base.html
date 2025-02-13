@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <style>
+        body {
+            background-image: url("{% static 'images/cerebra_background.png' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        header {
+            transition: height 0.3s ease;
+            overflow: hidden;
+        }
+
+        header.collapsed {
+            height: 50px; /* Высота свернутого хедера */
+        }
+
+        .toggle-header {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: #555;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            padding: 5px 10px;
+            cursor: pointer;
+            z-index: 1100;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-header:hover {
+            background: #777;
+        }
+
+        header.collapsed .toggle-header {
+            transform: rotate(180deg);
+        }
+    </style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cerebra{% endblock %}</title>
+    <!-- Подключение Bootstrap CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/fonts.css' %}" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>    
+</head>
+<body>
+    <header class="bg-dark text-white py-3">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <img src="{% static 'images/cerebra_logo.png' %}" alt="Cerebra CRM Logo" style="height: 80px; margin-right: 10px;">
+                    <h1 class="h3 mb-0" style="font-family: 'Roboto', sans-serif;">Cerebra</h1>
+                </div>
+                <button class="toggle-header" aria-label="Свернуть хедер">&#x25B2;</button>
+                <nav>
+                    <ul class="nav justify-content-center">
+                        {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'home' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link text-white" style="padding: 0; border: none; background: none;">Главная</button>
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'project_list' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link text-white" style="padding: 0; border: none; background: none;">Проекты</button>
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'ticket_list' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link text-white" style="padding: 0; border: none; background: none;">Заявки</button>
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'profile' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link text-white" style="padding: 0; border: none; background: none;">Профиль</button>
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'contact_list' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link text-white" style="padding: 0; border: none; background: none;">Контакты</button>
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'statistics' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link text-white" style="padding: 0; border: none; background: none;">Статистика</button>
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link text-white" style="padding: 0; border: none; background: none;">Выйти</button>
+                            </form>
+                        </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{% url 'login' %}">Вход</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mt-5" style="padding-top: 90px;">
+        {% block content %}
+        <!-- Основной контент -->
+        <div class="text-center mt-5">
+            <!-- Существующий контент -->
+        </div>
+        {% endblock %}
+    </main>
+    
+
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('header');
+            const toggleButton = document.querySelector('.toggle-header');
+
+            toggleButton.addEventListener('click', () => {
+                header.classList.toggle('collapsed'); // Добавляем/удаляем класс
+            });
+        });
+    </script>
+</body>
+</html>

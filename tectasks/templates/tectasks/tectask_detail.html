@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Детали задачи{% endblock %}
+
+{% block content %}
+    <h1>{{ tectask.title }}</h1>
+    <p>{{ tectask.description }}</p>
+
+    <h3>Автор: {{ tectask.author.get_full_name }}</h3>
+    <h3>Исполнитель: {{ tectask.assignee.get_full_name }}</h3>
+    <!--<h3>Наблюдатель: {{ tectask.observer.get_full_name }}</h3>-->
+
+    <h3>Ассистенты:</h3>
+    <ul>
+        {% for assistant in assistants %}
+            <li>{{ assistant.user.get_full_name }}
+                {% if request.user == tectask.author or request.user == tectask.assignee %}
+                    <!-- Кнопка для удаления ассистента -->
+                    <a href="{% url 'remove_assistant' 'tectask' tectask.id assistant.id %}" class="btn btn-danger btn-sm">Удалить</a>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>Нет ассистентов</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Отображение сообщений об ошибках и успехах -->
+    {% if messages %}
+        <div class="alert alert-danger">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Кнопка добавления ассистента, если задача не завершена -->
+    {% if tectask.status != 'completed' %}
+        <a href="{% url 'add_assistant' 'tectask' tectask.id %}" class="btn btn-primary">Добавить ассистента</a>
+    {% endif %}
+
+    <h3>Дедлайн: {{ tectask.deadline }}</h3>
+    <p>Статус: {{ tectask.get_status_display }}</p>
+
+    <p>Количество возвратов на доработку: {{ tectask.return_count }}</p>
+
+    <!-- Кнопки для исполнителя -->
+    {% if request.user == tectask.assignee or request.user in tectask.tectask_assistants.all %}
+        {% if tectask.status == 'new' %}
+            {% if request.user == tectask.assignee and tectask.status == 'new' %}
+                <form method="post" action="{% url 'accept_tectask' tectask.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Принять</button>
+                </form>
+            {% endif %}
+        {% elif tectask.status == 'in_progress' %}
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" name="complete_tectask" class="btn btn-success">Выполнено</button>
+                <button type="submit" name="request_extension" class="btn btn-warning">Запросить продление</button>
+            </form>
+        {% endif %}
+    {% endif %}
+
+    {% if request.user == tectask.author and tectask.status == 'extension_requested' %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="approve_extension" class="btn btn-success">Подтвердить продление</button>
+            <button type="submit" name="deny_extension" class="btn btn-danger">Отказать в продлении</button>
+        </form>
+    {% endif %}
+
+    {% if request.user == tectask.author and tectask.status == 'done' %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="confirm_completion" class="btn btn-success">Подтвердить выполнение</button>
+            <button type="submit" name="return_for_revision" class="btn btn-danger">Вернуть на доработку</button>
+        </form>
+    {% endif %}
+
+    {% if request.user == tectask.assignee and tectask.status == 'in_revision' %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="confirm_completion" class="btn btn-success">Завершить доработку</button>
+        </form>
+    {% endif %}
+
+    {% if tectask.status == 'completed' %}
+        <p>Задача завершена и подтверждена автором.</p>
+    {% endif %}
+
+    <hr>
+
+    <h2>Чат задачи</h2>
+    <div id="chat">
+        <ul>
+            {% for message in chat_messages %}
+                <li><strong>{{ message.user.get_full_name }}:</strong> {{ message.message }} <em>{{ message.created_at }}</em></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if tectask.status != 'completed' %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="add_message" class="btn btn-primary">Отправить сообщение</button>
+    </form>
+    {% endif %}
+
+    <hr>
+
+    <!-- Условие, чтобы блок "Загрузить файл" и заголовок не отображались для завершенных задач -->
+    {% if tectask.status != 'completed' %}
+    <h2>Загрузить файл</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ attachment_form.as_p }}
+        <button type="submit" name="upload_file" class="btn btn-primary">Загрузить файл</button>
+    </form>
+    <hr>
+    {% endif %}
+
+    <h2>Прикрепленные файлы</h2>
+    <ul>
+        {% for attachment in tectask.attachments.all %}
+            <li><a href="{{ attachment.file.url }}">{{ attachment.file.name }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <hr>
+
+    <p><a href="{% url 'tectask_list' %}" class="btn btn-secondary">Вернуться к списку задач</a></p>
+
+{% endblock %}

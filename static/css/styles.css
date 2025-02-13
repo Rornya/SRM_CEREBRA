@@ -1,0 +1,504 @@
+/* Общий стиль для body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Стили для header */
+header {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Стили для навигации */
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+nav ul li {
+    margin: 0 15px; /* Ставим одинаковые отступы между элементами */
+    display: inline-block;
+}
+
+.nav-link, .btn-link {
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.nav-link:hover, .btn-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link-form {
+    margin: 0;
+}
+
+/* Основная часть сайта */
+main {
+    padding: 150px;
+    flex-grow: 1;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    margin: 120px auto 30px;  /* Отступ сверху для компенсации фиксированного header */
+    max-width: 1200px;
+}
+
+/* Стили для footer */
+footer {
+    background-color: #333; /* Цвет фона футера */
+    color: #fff; /* Цвет текста */
+    padding: 10px;
+    text-align: center;
+}
+
+/* Стили для контейнеров главной страницы */
+.dashboard {
+    display: flex;
+    justify-content: space-between;
+}
+
+.left-panel, .right-panel, .center-panel {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Увеличиваем размеры блоков */
+.left-panel, .right-panel {
+    width: 20%;  /* уменьшаем ширину боковых панелей */
+    min-height: 500px; /* увеличиваем высоту панелей */
+}
+
+.center-panel {
+    width: 55%;  /* увеличиваем центральную панель */
+    min-height: 500px; /* увеличиваем высоту календаря */
+}
+
+#calendar {
+    height: 610px; /* увеличиваем высоту календаря */
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+/* Стили для блока с задачами */
+.tasks-section {
+    margin-top: 50px; /* Добавляем отступ сверху для смещения блока задач */
+}
+
+/* Стили для форм */
+form input, form textarea, form select {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px; /* Закругление углов полей */
+    border: 1px solid #ccc;
+    width: 100%;
+}
+
+form button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #45a049;
+}
+
+/* Стили для общей статистики */
+.statistics-container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.statistics-item {
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 30%;
+}
+
+.statistics-item h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.statistics-item p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Стили для блока просроченных задач и заявок */
+.overdue-container {
+    margin: 20px 0;
+    background-color: #ffe5e5;
+    padding: 10px;
+    border-left: 5px solid #ff4d4d;
+    border-radius: 5px;
+}
+
+.overdue-container p {
+    font-size: 16px;
+    color: #ff4d4d;
+}
+
+/* Стили для рейтинга звезд */
+.rating {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.checked {
+    color: orange;
+}
+
+.fa-star {
+    font-size: 24px;
+    margin-right: 5px;
+}
+
+/* Стили для адаптивности */
+@media (max-width: 768px) {
+    .dashboard {
+        flex-direction: column;
+    }
+
+    .left-panel, .right-panel, .center-panel {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}
+
+/* Стили для событий в календаре */
+.fc-daygrid-day {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.fc-daygrid-day-frame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.fc-daygrid-day-top {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 12px;
+}
+
+.fc-daygrid-day-events {
+    display: none;
+}
+
+.event-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    margin: 2px;
+    display: inline-block;
+}
+
+.blue-dot {
+    background-color: #007bff; /* Синий для задач */
+}
+
+.green-dot {
+    background-color: #28a745; /* Зеленый для заявок */
+}
+
+.yellow-dot {
+    background-color: #f4c20d; /* Желтый для текущих задач */
+}
+
+.orange-dot {
+    background-color: #ff5722; /* Оранжевый для записей */
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+.alert-error, .alert-danger {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px;  /* расстояние между кнопками */
+}
+
+.checkbox-list {
+    max-height: 200px; /* Настройте высоту по своему усмотрению */
+    overflow-y: auto;
+    padding-left: 10px; /* Добавьте отступы, если нужно */
+}
+.checkbox-list label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px; /* Расстояние между элементами */
+}
+.checkbox-list input[type="checkbox"] {
+    margin-right: 8px; /* Отступ справа от галочки */
+}
+
+.tabs-container {
+    margin-bottom: 20px;
+}
+
+.tabs {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    border-bottom: 2px solid #ddd;
+}
+
+.tab-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    background-color: #f8f9fa;
+    margin-right: 5px;
+}
+
+.tab-item.active {
+    background-color: #ffffff;
+    border-color: #ddd;
+    border-bottom: 2px solid white;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: block; /* Обязательно убедитесь, что это свойство активно */
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 0 0 5px 5px;
+    background-color: #ffffff;
+    height: calc(100vh - 100px); /* Высота окна минус пространство под другие элементы */
+    width: 100%; /* Используйте всю ширину родительского контейнера */
+    overflow: auto; /* Добавьте прокрутку для содержимого */
+}
+
+
+.tab-content.active {
+    display: block;
+}
+
+.contact-group {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.contact-group h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.letter-button {
+    display: inline-block;
+    margin-bottom: 10px;
+    background-color: orange;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.letter-button:hover {
+    background-color: darkorange;
+}
+
+.contact-list {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.contact-list li {
+    margin: 5px 0;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.contact-list li:last-child {
+    border-bottom: none;
+}
+
+.contact-list li a {
+    text-decoration: none;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+.contact-list li a:hover {
+    color: #0056b3;
+}
+
+
+/* Добавление адаптации для экранов до 480px */
+@media (max-width: 480px) {
+    header {
+        padding: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .nav-link {
+        padding: 5px 10px;
+        font-size: 0.9rem;
+    }
+
+    main {
+        padding: 80px 20px;
+        margin: 100px auto 20px;
+        width: 90%;
+    }
+
+    .left-panel, .right-panel, .center-panel {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+
+    .statistics-item {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .tab-content {
+        height: auto; /* Убираем фиксированную высоту для мобильных устройств */
+    }
+}
+
+/* Оптимизация кнопок для мобильных */
+form button {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+}
+
+/* Оптимизация текста и списков */
+form input, form textarea, form select {
+    font-size: 0.9rem;
+}
+
+.checkbox-list {
+    max-height: 150px;
+}
+
+.tabs {
+    flex-wrap: wrap; /* Перенос вкладок на следующую строку при узких экранах */
+}
+
+.tab-item {
+    font-size: 0.9rem;
+}
+
+/* Компактный вид календаря для мобильных */
+@media (max-width: 480px) {
+    #calendar {
+        height: 300px; /* Уменьшаем высоту */
+        font-size: 12px; /* Уменьшаем шрифт */
+        overflow-y: scroll; /* Добавляем прокрутку, если содержимое не влезает */
+    }
+
+    .fc-daygrid-day {
+        width: 50px;
+        height: 50px;
+    }
+
+    .fc-daygrid-day-frame {
+        font-size: 10px;
+    }
+}
+
+.toggle-header {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: #555;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    padding: 5px 10px;
+    cursor: pointer;
+    z-index: 1100; /* Поверх хедера */
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.toggle-header:hover {
+    background: #777;
+}
+
+header.collapsed {
+    height: 30px; /* Высота свернутого хедера */
+    overflow: hidden;
+    transition: height 0.3s ease;
+}
+
+header.collapsed .toggle-header {
+    transform: rotate(180deg);
+}
+
+#gantt {
+    width: 100%; /* Диаграмма занимает всю ширину родителя */
+    height: 600px; /* Фиксированная высота */
+    overflow-x: auto; /* Включить горизонтальный скроллинг, если содержимое шире */
+    overflow-y: hidden; /* Убрать вертикальный скроллинг */
+    border: 1px solid #ddd; /* Добавить границу для визуализации */
+    padding: 10px; /* Внутренние отступы */
+    box-sizing: border-box; /* Учет границ и отступов */
+}

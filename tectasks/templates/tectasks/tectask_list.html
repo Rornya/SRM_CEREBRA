@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Список задач{% endblock %}
+
+{% block content %}
+    <h1>Список задач</h1>
+
+    <!-- Кнопка для создания новой задачи -->
+    <p><a href="{% url 'tectask_create' %}" class="btn btn-primary">Создать новую задачу</a></p>
+
+    <ul>
+        {% for tectask in tectasks %}
+            <li><a href="{% url 'tectask_detail' tectask.id %}">{{ tectask.title }}</a> - {{ tectask.get_status_display }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

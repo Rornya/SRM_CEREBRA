@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Добавить участников в проект</h2>
+
+<!-- Блок для отображения сообщений об ошибках -->
+{% if messages %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Форма фильтрации по отделу -->
+<form method="get">
+    <div class="form-group">
+        <label for="department">Выберите отдел:</label>
+        <select name="department" id="department" onchange="this.form.submit()" class="form-control">
+            <option value="">Все отделы</option>
+            {% for department in departments %}
+                <option value="{{ department.id }}" {% if current_department == department.id|stringformat:"s" %}selected{% endif %}>
+                    {{ department.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+<!-- Форма выбора участников -->
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group mt-3">
+        <label for="users">Выберите участников:</label>
+        <ul class="list-group">
+            {% for user in form.users.field.queryset %}
+                <li class="list-group-item d-flex align-items-center justify-content-start">
+                    <!-- Чекбокс -->
+                    <input type="checkbox" name="users" value="{{ user.id }}" id="user_{{ user.id }}" class="form-check-input me-2" style="cursor: pointer;">
+                    <!-- ФИО -->
+                    <label for="user_{{ user.id }}" class="mb-0" style="cursor: pointer; flex-grow: 1;">
+                        {{ user.get_full_name }}
+                    </label>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Добавить участников</button>
+</form>
+
+<a href="{% url 'project_detail' project.id %}" class="btn btn-secondary mt-3">Вернуться к проекту</a>
+{% endblock %}

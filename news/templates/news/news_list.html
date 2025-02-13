@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Новости</h1>
+<div class="news-list">
+    <ul>
+        {% for news in news_list %}
+            <li>
+                <a href="{% url 'news_detail' news.id %}">{{ news.title }}</a> <em>{{ news.created_at }}</em>
+                
+                <!-- Показываем информацию о видимости, если текущий пользователь - автор -->
+                {% if news.author == request.user %}
+                <small> — Видимо для: 
+                    {% if news.is_visible_for_office %}Офис{% endif %}
+                    {% if news.is_visible_for_warehouse %}, Склад{% endif %}
+                    {% if news.is_visible_for_store %}, Магазин{% endif %}
+                </small>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% if request.user.userprofile.can_post_news %}
+    <a href="{% url 'add_news' %}" class="btn btn-primary">Добавить новость</a>
+{% endif %}
+{% endblock %}

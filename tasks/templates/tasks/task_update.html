@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Обновление задачи{% endblock %}
+
+{% block content %}
+
+    <h1>Обновление задачи</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.title }}
+        {{ form.description }}
+        <label for="id_deadline">Дедлайн:</label>
+        {{ form.deadline }}
+        {{ form.assignee }}
+        {{ form.observer }}
+        <button type="submit">Обновить задачу</button>
+    </form>
+
+{% endblock %}

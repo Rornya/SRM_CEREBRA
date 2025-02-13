@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить ассистента{% endblock %}
+
+{% block content %}
+
+    <h1>Добавить ассистента для проектной задаче "{{ task.title }}"</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Добавить ассистента</button>
+    </form>
+    
+{% endblock %}

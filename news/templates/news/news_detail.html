@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ news.title }}</h1>
+    <p>{{ news.content }}</p>
+    <p><em>Автор: {{ news.author.get_full_name }} | Дата: {{ news.created_at }}</em></p>
+    <p><a href="{% url 'home' %}">Вернуться на главную</a></p>
+    {% endblock %}

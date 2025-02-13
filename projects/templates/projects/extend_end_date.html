@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Продление даты завершения{% endblock %}
+
+{% block content %}
+    <h1>Продлить дату завершения проекта: {{ project.title }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Продлить</button>
+    </form>
+    <a href="{% url 'project_detail' project.id %}" class="btn btn-secondary">Отмена</a>
+{% endblock %}

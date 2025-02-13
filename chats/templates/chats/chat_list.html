@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список чатов</title>
+</head>
+<body>
+    <h1>Ваши чаты</h1>
+    <ul>
+        {% for chat in chats %}
+            <li><a href="{% url 'chat_detail' chat.id %}">Чат с {{ chat.participants.count }} участниками</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

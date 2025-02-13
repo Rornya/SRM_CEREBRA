@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Мероприятия{% endblock %}
+
+{% block content %}
+<h1>Мероприятия</h1>
+<a href="{% url 'activity_create' %}" class="btn btn-primary">Создать новое мероприятие</a>
+<ul>
+    {% for activity in activities %}
+        <li>
+            <strong>{{ activity.title }}</strong> - {{ activity.activity_date }}
+            <p>{{ activity.description }}</p>
+
+            {% if activity.is_completed %}
+                <p><em>Завершено</em></p>
+            {% else %}
+                <a href="{% url 'activity_complete' activity.pk %}" class="btn btn-success">Отметить как завершено</a>
+            {% endif %}
+            
+            <a href="{% url 'activity_delete' activity.pk %}" class="btn btn-danger">Удалить</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

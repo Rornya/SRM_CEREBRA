@@ -1,0 +1,30 @@
+<div id="assignModal" class="modal" style="display: none;">
+    <div class="modal-content" style="padding: 20px; background-color: #fff; border: 1px solid #ccc; width: 300px; margin: auto; position: relative;">
+        <span class="close" style="position: absolute; top: 10px; right: 10px; cursor: pointer; font-size: 20px;">&times;</span>
+        <h2>Назначить участников</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" style="margin-top: 10px;">Сохранить</button>
+        </form>
+    </div>
+</div>
+
+<script>
+var modal = document.getElementById("assignModal");
+var span = document.getElementsByClassName("close")[0];
+
+function openModal() {
+    modal.style.display = "block";
+}
+
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+</script>

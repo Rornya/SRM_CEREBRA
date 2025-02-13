@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}Детали записи{% endblock %}
+
+{% block content %}
+<h1>{{ entry.title }}</h1>
+<p>{{ entry.entry_text }}</p>
+<p>Дата записи: {{ entry.entry_date }}</p>
+<a href="{% url 'diary_list' %}">Вернуться к списку</a>
+{% endblock %}

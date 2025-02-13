@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block content %}
+    {% if request.user.is_authenticated %}
+        <h1>Добро пожаловать, {{ request.user.get_full_name }}!</h1>
+
+        <!-- Вкладки -->
+        <div class="tabs-container">
+            <ul class="tabs">
+                <li class="tab-item active" data-tab="calendar-tab">Мой календарь</li>
+                <li class="tab-item" data-tab="tasks-tab">Мои заявки и проекты</li>
+                <li class="tab-item" data-tab="gantt-tab">Моя диаграмма Ганта</li>
+                <li class="tab-item"><a href="{% url 'diary_list' %}">Мой ежедневник</a></li>
+                <li class="tab-item"><a href="{% url 'activity_list' %}">Мои мероприятия</a></li>                
+            </ul>
+        </div>
+
+        <!-- Содержимое вкладок -->
+        <div class="tabs-content">
+            <!-- Вкладка: Календарь -->
+            <div id="calendar-tab" class="tab-content active">
+                <div class="dashboard" style="display: flex; justify-content: space-between; align-items: stretch;">
+                    {% if show_calendar %}
+                        <div class="center-panel" style="height:800px; width: 55%; background-color: #ffffff; padding: 15px; border-radius: 10px;">
+                            {% include "calendars/calendar.html" %}
+                        </div>
+                    {% endif %}
+
+                    <div class="right-panel" style="width: 40%; background-color: #f8f9fa; padding: 15px; border-radius: 10px;">
+                        <h2>Объявления</h2>
+                        <div class="news-list">
+                            <ul>
+                                {% for news in news_list %}
+                                    <li><a href="{% url 'news_detail' news.id %}">{{ news.title }}</a> <em>{{ news.created_at }}</em></li>
+                                {% endfor %}
+                            </ul>
+                            <div class="announcement-link">
+                                <a href="{% url 'news_list' %}" class="btn btn-primary">Все объявления</a>
+                            </div>
+                            {% if request.user.userprofile.can_post_news %}
+                                <a href="{% url 'add_news' %}" class="btn btn-primary mt-3">Добавить новость</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка: Список задач -->
+            <div id="tasks-tab" class="tab-content">
+                <div style="clear: both; margin-top: 40px;">
+                    <h2>Проектные Задачи</h2>
+                    <ul>
+                        {% for task in tasks %}
+                            <li><a href="{% url 'project_detail' task.project.id %}">{{ task.project.title }}</a> - 
+                            <a href="{% url 'task_detail' task.id %}">{{ task.title }}</a> - дедлайн: {{ task.deadline }}</li>
+                        {% endfor %}
+                        {% if tasks|length == 0 %}
+                            <li>Нет активных проектных задач</li>
+                        {% endif %}
+                    </ul>
+
+                    <h2>Заявки</h2>
+                    <ul>
+                        {% for ticket in tickets %}
+                            <li><a href="{% url 'ticket_detail' ticket.id %}">{{ ticket.title }}</a> - дедлайн: {{ ticket.deadline }}</li>
+                        {% endfor %}
+                        {% if tickets|length == 0 %}
+                            <li>Нет активных заявок</li>
+                        {% endif %}
+                    </ul>
+                    
+                    <h2>Проекты</h2>
+                    <ul>
+                        {% for project in projects %}
+                            <li><a href="{% url 'project_detail' project.id %}">{{ project.title }}</a> - завершение: {{ project.end_date }}</li>
+                        {% endfor %}
+                        {% if projects|length == 0 %}
+                            <li>Нет активных проектов</li>
+                        {% endif %}
+                    </ul>
+
+                    <h2>Мероприятия</h2>
+                    <ul>
+                        {% for activity in activities %}
+                            <li><a href="{% url 'activity_detail' activity.id %}">{{ activity.title }}</a> - дата: {{ activity.activity_date }}</li>
+                        {% empty %}
+                            <li>Нет предстоящих мероприятий</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Вкладка: Диаграмма Ганта -->
+            <div id="gantt-tab" class="tab-content" style="display: none;">
+                <iframe src="{% url 'gantt_view' %}" style="width:100%; height:1500px; border:none;"></iframe>
+            </div>
+        </div>
+
+        <!-- Скрипт для переключения вкладок -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const tabs = document.querySelectorAll(".tab-item");
+                const tabContents = document.querySelectorAll(".tab-content");
+        
+                // Инициализация: показываем только активную вкладку
+                tabContents.forEach((content) => content.style.display = "none");
+                const activeTabContent = document.querySelector(".tab-content.active");
+                if (activeTabContent) {
+                    activeTabContent.style.display = "block";
+                }
+        
+                // Обработчик кликов по вкладкам
+                tabs.forEach((tab) => {
+                    tab.addEventListener("click", () => {
+                        // Убираем активные классы у всех вкладок
+                        tabs.forEach((t) => t.classList.remove("active"));
+                        tabContents.forEach((content) => content.style.display = "none");
+        
+                        // Активируем текущую вкладку
+                        tab.classList.add("active");
+                        const activeTab = document.getElementById(tab.dataset.tab);
+                        if (activeTab) {
+                            activeTab.style.display = "block";
+                        }
+                    });
+                });
+            });
+        </script>
+        
+    {% else %}
+        <h1>Добро пожаловать в систему Cerebra!</h1>
+        <p>Войдите в систему либо обратитесь к администратору системы. Продуктивного Вам дня!</p>
+    {% endif %}
+{% endblock %}

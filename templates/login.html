@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Вход в систему{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4" style="width: 600px;">
+        <!-- Логотип -->
+        <div class="text-center mb-4">
+            <img src="{% static 'images/cerebra_logo.png' %}" alt="Cerebra CRM Logo" style="width: 200px;">
+        </div>
+        <h2 class="text-center">Вход в Cerebra CRM</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <!-- Добавляем скрытое поле для параметра next -->
+            <input type="hidden" name="next" value="{{ next }}">
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Войти</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Список контактов</h1>
+<div id="contact-list">
+    {% for letter, users in grouped_users.items %}
+    <div class="contact-group">
+        <button class="letter-button" onclick="toggleGroup('{{ letter }}')">{{ letter }}</button>
+        <ul id="group-{{ letter }}" class="contact-list" style="display: none;">
+            {% for user in users %}
+            <li>
+                <a href="{% url 'view_user_profile' user.id %}">{{ user.get_full_name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    function toggleGroup(letter) {
+        const group = document.getElementById(`group-${letter}`);
+        if (group.style.display === "none" || group.style.display === "") {
+            group.style.display = "block";
+        } else {
+            group.style.display = "none";
+        }
+    }
+</script>
+
+{% endblock %}

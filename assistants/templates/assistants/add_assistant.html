@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Добавить ассистента к 
+    {% if ticket %} заявке {{ ticket.title }} 
+    {% elif task %} задаче {{ task.title }} 
+    {% elif tectask %} текущей задаче {{ tectask.title }} 
+    {% endif %}
+</h1>
+
+<!-- Вывод сообщений об ошибках, если они есть -->
+{% if messages %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Форма для добавления ассистента -->
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Поле для выбора отдела -->
+    <div class="form-group">
+        <label for="id_department">{{ form.department.label }}</label>
+        {{ form.department }} <br>
+    </div>
+
+    <!-- Поле для выбора ассистента -->
+    <div class="form-group">
+        <label for="id_user">{{ form.user.label }}</label>
+        {{ form.user }} <br>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Добавить ассистента</button>
+</form>
+
+<!-- Скрипт для автоматической отправки формы при смене отдела -->
+<script>
+    document.getElementById("id_department").onchange = function() {
+        var form = this.form;
+        form.action = window.location.pathname;
+        form.submit();
+    };
+</script>
+{% endblock %}

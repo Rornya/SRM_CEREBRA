@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        Редактирование проекта
+    {% else %}
+        Создание проекта
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <h1>{% if form.instance.pk %}Редактирование проекта{% else %}Создание проекта{% endif %}</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Отображение ошибок формы с кастомным стилем -->
+        {% if form.errors %}
+            <div style="color: red; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Основное содержимое формы -->
+        {{ form.as_p }}
+
+        <button type="submit">Сохранить</button>
+    </form>
+    <a href="{% url 'project_list' %}">Отменить</a>
+{% endblock %}

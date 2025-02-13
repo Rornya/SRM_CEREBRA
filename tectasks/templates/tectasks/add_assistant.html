@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Добавить ассистента к задаче {{ tectask.title }}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}  <!-- Убедись, что форма рендерится корректно -->
+        <button type="submit">Добавить ассистента</button>
+    </form>
+{% endblock %}

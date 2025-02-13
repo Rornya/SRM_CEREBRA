@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои записи{% endblock %}
+
+{% block content %}
+<h1>Мои записи</h1>
+<a href="{% url 'diary_entry_create' %}" class="btn btn-primary">Создать новую запись</a>
+<ul>
+    {% for entry in entries %}
+        <li>
+            <strong>{{ entry.title }}</strong> - {{ entry.entry_date }}
+            <p>{{ entry.content }}</p>
+
+            {% if entry.is_completed %}
+                <p><em>Завершено</em></p>
+            {% else %}
+                <a href="{% url 'diary_entry_complete' entry.pk %}" class="btn btn-success">Отметить как выполнено</a>
+            {% endif %}
+            <a href="{% url 'diary_entry_delete' entry.pk %}" class="btn btn-danger">Удалить</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

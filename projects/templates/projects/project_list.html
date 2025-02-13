@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Список проектов{% endblock %}
+
+{% block content %}
+<h1>Список проектов</h1>
+
+<!-- Верхняя панель с кнопкой "Создать", поиском и фильтром -->
+<div class="d-flex justify-content-between mb-3">
+    <a href="{% url 'project_create' %}" class="btn btn-primary">Создать новый проект</a>
+    <div class="d-flex">
+        <form method="get" action="{% url 'project_list' %}" class="d-flex me-2">
+            <input type="text" name="query" placeholder="Поиск..." value="{{ query }}" class="form-control me-2">
+            <button type="submit" class="btn btn-secondary">Найти</button>
+        </form>
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#filterModal">Фильтр</button>
+    </div>
+</div>
+
+<!-- Модальное окно для фильтра -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Фильтр по дате</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <form method="get" action="{% url 'project_list' %}">
+                    <div class="mb-3">
+                        <label for="year" class="form-label">Год</label>
+                        <select class="form-select" name="year" id="year">
+                            <option value="">Все годы</option>
+                            {% for year in years %}
+                                <option value="{{ year.year }}" {% if year.year|stringformat:"s" == selected_year %}selected{% endif %}>{{ year.year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="month" class="form-label">Месяц</label>
+                        <select class="form-select" name="month" id="month">
+                            <option value="">Все месяцы</option>
+                            {% for month_num, month_name in months.items %}
+                                <option value="{{ month_num }}" {% if month_num|add:'' == selected_month %}selected{% endif %}>{{ month_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Применить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Активные проекты -->
+<h2>Активные проекты</h2>
+<ul class="list-group mb-3">
+    {% for project in active_projects %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center" style="padding-left: 80px;"> <!-- Фиксированный отступ -->
+                {% if request.user == project.manager or perms.projects.delete_project %}
+                    <form action="{% url 'delete_project' project.id %}" method="post" style="position: absolute; left: 0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены, что хотите удалить этот проект?');">Удалить</button>
+                    </form>
+                {% endif %}
+                <a href="{% url 'project_detail' project_id=project.id %}">{{ project.title }}</a>
+            </div>
+            <div class="project-info">
+                {% if project.end_date %}
+                    Завершение: {{ project.end_date|date:"d.m.Y" }}
+                {% else %}
+                    Дата завершения не установлена
+                {% endif %}
+                - Выполнено: {{ project.completion_percentage|floatformat:1|default:"0.0" }}%
+            </div>
+        </li>
+    {% empty %}
+        <li class="list-group-item">Нет активных проектов.</li>
+    {% endfor %}
+</ul>
+
+<!-- Завершённые проекты -->
+<h2>Завершённые проекты</h2>
+<ul class="list-group">
+    {% for project in completed_projects %}
+        <li class="list-group-item d-flex justify-content-between align-items-center" style="text-decoration: line-through; color: gray;">
+            <div class="d-flex align-items-center" style="padding-left: 80px;"> <!-- Фиксированный отступ -->
+                {% if request.user == project.manager or perms.projects.delete_project %}
+                    <form action="{% url 'delete_project' project.id %}" method="post" style="position: absolute; left: 0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены, что хотите удалить этот проект?');">Удалить</button>
+                    </form>
+                {% endif %}
+                <a href="{% url 'project_detail' project_id=project.id %}">{{ project.title }}</a>
+            </div>
+            <span>
+                Завершён
+            </span>
+        </li>
+    {% empty %}
+        <li class="list-group-item">Нет завершённых проектов.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

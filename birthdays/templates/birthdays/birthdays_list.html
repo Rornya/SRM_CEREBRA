@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Список дней рождения{% endblock %}
+
+{% block content %}
+    <h1>Список дней рождения сотрудников</h1>
+    <ul>
+        {% for profile in birthdays %}
+            <li>{{ profile.user.get_full_name }} - {{ profile.birth_date|date:"F j" }}</li>
+        {% empty %}
+            <li>Нет сотрудников с указанной датой рождения</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

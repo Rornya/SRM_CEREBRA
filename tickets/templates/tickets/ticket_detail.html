@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block title %}Детали заявки{% endblock %}
+
+{% block content %}
+<h1>{{ ticket.title }}</h1>
+
+<h6>Автор: {{ ticket.author.get_full_name }}</h6>
+<h6>Исполнитель: {{ ticket.assignee.get_full_name }}</h6>
+
+<hr>
+
+<h2><p>{{ ticket.description|linebreaks }}</p></h2>
+
+<hr>
+
+<h4>Ассистенты:</h4>
+<ul>
+    {% for assistant in assistants %}
+        <li>
+            {{ assistant.user.get_full_name }}
+            {% if request.user == ticket.author or request.user == ticket.assignee %}
+                <a href="{% url 'remove_assistant' 'ticket' ticket.id assistant.id %}" 
+                   class="btn btn-danger btn-sm d-inline-block me-2" 
+                   onclick="return confirm('Вы уверены, что хотите удалить ассистента?');">Удалить</a>
+            {% endif %}
+        </li>
+    {% empty %}
+        <li>Нет ассистентов</li>
+    {% endfor %}
+</ul>
+
+{% if messages %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<hr>
+
+{% if ticket.status != 'completed' %}
+    <a href="{% url 'add_assistant' 'ticket' ticket.id %}" 
+       class="btn btn-primary d-inline-block me-2">Добавить ассистента</a>
+{% endif %}
+
+<h4>Дедлайн: {{ ticket.deadline }}</h4>
+<p>Статус: {{ ticket.get_status_display }}</p>
+
+<p>Количество возвратов на доработку: {{ ticket.return_count }}</p>
+
+<hr>
+
+<div class="button-group d-flex flex-wrap gap-2">
+    <!-- Кнопки для исполнителя -->
+    {% if request.user == ticket.assignee %}
+        {% if ticket.status == 'new' %}
+            <form method="post" action="{% url 'accept_ticket' ticket.id %}" 
+                  class="d-inline-block me-2" 
+                  onsubmit="return confirm('Вы уверены, что хотите принять заявку?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Принять</button>
+            </form>
+        {% elif ticket.status == 'in_progress' or ticket.status == 'in_revision' %}
+            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#requestExtensionModal">
+                Запросить продление
+            </button>
+            <form method="post" class="d-inline-block me-2">
+                {% csrf_token %}
+                <button type="submit" name="complete_ticket" class="btn btn-success me-2">Выполнено</button>
+            </form>
+        {% endif %}
+    {% endif %}
+
+    <!-- Кнопки для автора -->
+    {% if request.user == ticket.author %}
+        {% if ticket.status == 'extension_requested' %}
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveExtensionModal">
+                Подтвердить продление
+            </button>
+            <form method="post" class="d-inline-block me-2">
+                {% csrf_token %}
+                <button type="submit" name="deny_extension" class="btn btn-danger me-2" 
+                        onclick="return confirm('Отклонить продление?');">Отклонить</button>
+            </form>
+        {% elif ticket.status == 'done' %}
+            <form method="post" class="d-inline-block me-2">
+                {% csrf_token %}
+                <button type="submit" name="confirm_completion" class="btn btn-success me-2" 
+                        onclick="return confirm('Подтвердить выполнение?');">Подтвердить выполнение</button>
+                <button type="submit" name="return_for_revision" class="btn btn-danger me-2" 
+                        onclick="return confirm('Вернуть на доработку?');">Вернуть на доработку</button>
+            </form>
+        {% elif ticket.status != 'completed' and ticket.status != 'completed_early' %}
+            <form method="post" class="d-inline-block me-2" 
+                  onsubmit="return confirm('Завершить заявку досрочно?');">
+                {% csrf_token %}
+                <button type="submit" name="complete_early" class="btn btn-warning">Завершить досрочно</button>
+            </form>
+        {% endif %}
+        <a href="{% url 'ticket_update' ticket.id %}"class="btn btn-primary d-inline-block me-2">Редактировать</a>
+    {% endif %}
+</div>
+
+{% if ticket.status == 'completed_early' %}
+    <p>Заявка досрочно завершена.</p>
+{% elif ticket.status == 'completed' %}
+    <p>Заявка завершена и подтверждена автором.</p>
+{% endif %}
+
+<hr>
+
+<h2>Чат заявки</h2>
+<div id="chat">
+    <ul>
+        {% for message in chat_messages %}
+            <li>
+                <strong>{{ message.user.get_full_name }}:</strong>
+                <span>{{ message.message|linebreaks }}</span>
+                <em>{{ message.created_at }}</em>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% if ticket.status != 'completed' %}
+    <form method="post" class="d-inline-block me-2">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="add_message" class="btn btn-primary">Отправить сообщение</button>
+    </form>
+{% endif %}
+
+<hr>
+
+<hr>
+
+{% if ticket.status != 'completed' %}
+    <h2>Загрузить файл</h2>
+    <form method="post" enctype="multipart/form-data" class="d-inline-block me-2">
+        {% csrf_token %}
+        {{ attachment_form.as_p }}
+        <button type="submit" name="upload_file" class="btn btn-primary">Загрузить файл</button>
+    </form>
+    <hr>
+{% endif %}
+
+<h2>Прикрепленные файлы</h2>
+<ul>
+    {% for attachment in ticket.attachments.all %}
+        <li><a href="{{ attachment.file.url }}">{{ attachment.file.name|cut:"attachments/" }}</a></li>
+    {% endfor %}
+</ul>
+
+<hr>
+
+<p><a href="{% url 'ticket_list' %}" class="btn btn-secondary d-inline-block me-2">Вернуться к списку заявок</a></p>
+
+<!-- Модальное окно для запроса продления -->
+<div class="modal fade" id="requestExtensionModal" tabindex="-1" aria-labelledby="requestExtensionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="requestExtensionModalLabel">Запрос продления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="extension_date">Выберите дату продления:</label>
+                    <input type="date" id="extension_date" name="extension_date" class="form-control" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" name="request_extension" class="btn btn-primary">Запросить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для подтверждения продления -->
+<div class="modal fade" id="approveExtensionModal" tabindex="-1" aria-labelledby="approveExtensionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approveExtensionModalLabel">Подтверждение продления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Исполнитель запросил продление до {{ ticket.requested_extension_date }}</p>
+                    <label for="extension_date">Изменить дату (если необходимо):</label>
+                    <input type="date" id="extension_date" name="extension_date" class="form-control" 
+                           value="{{ ticket.requested_extension_date|date:'Y-m-d' }}" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" name="approve_extension" class="btn btn-primary">Подтвердить</button>
+                    <button type="submit" name="deny_extension" class="btn btn-danger">Отклонить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

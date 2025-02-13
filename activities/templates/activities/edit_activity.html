@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Редактировать мероприятие{% endblock %}
+
+{% block content %}
+<h1>Редактировать мероприятие</h1>
+<form method="post">
+    {% csrf_token %}
+    
+    <!-- Отображение ошибок -->
+    {% if form.errors %}
+        <div style="color: red; font-size: 18px; font-weight: bold;">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Поля формы -->
+    <div class="mb-3">
+        {{ form.title.label_tag }} {{ form.title }}
+    </div>
+    <div class="mb-3">
+        {{ form.description.label_tag }} {{ form.description }}
+    </div>
+    <div class="mb-3">
+        {{ form.activity_date.label_tag }} {{ form.activity_date }}
+    </div>
+    <div class="mb-3">
+        {{ form.activity_time.label_tag }} {{ form.activity_time }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.participants.label_tag }}
+        <div class="scrollable-checkboxes">
+            {% for participant in form.participants %}
+                <div>
+                    <input type="checkbox" name="{{ participant.name }}" value="{{ participant.choice_value }}" id="{{ participant.id_for_label }}" {% if participant.choice_value in form.initial.participants %}checked{% endif %}>
+                    <label for="{{ participant.id_for_label }}">{{ participant.choice_label }}</label>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Кнопка отправки формы -->
+    <button type="submit" class="btn btn-success">Сохранить изменения</button>
+</form>
+{% endblock %}

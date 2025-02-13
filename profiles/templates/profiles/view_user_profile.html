@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% load static %} 
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+<h1>Профиль пользователя</h1>
+
+<!-- Окно для отображения фото профиля -->
+<div class="profile-photo">
+    {% if user_profile.profile_photo %}
+        <img src="{{ user_profile.profile_photo.url }}" alt="Фото профиля" style="width:150px; height:150px; object-fit:cover; border-radius:50%; border:2px solid #ddd;">
+    {% else %}
+        <p>Нет фото профиля</p>
+    {% endif %}
+</div>
+
+<div class="profile-info">
+    <p><strong>ФИО:</strong> {{ user_profile.full_name }}</p>
+    <p><strong>Должность:</strong> {{ user_profile.position }}</p>
+    <p><strong>Отдел:</strong> {{ user_profile.department }}</p>
+    <p><strong>Email:</strong> {{ user_profile.email }}</p>
+
+    {% if not is_store_account %}
+        <p><strong>Внутренний телефон:</strong> {{ user_profile.internal_phone }}</p>
+        <p><strong>Мобильный телефон:</strong> {{ user_profile.mobile_phone }}</p>
+    {% else %}
+        <p>Телефоны скрыты для учетной записи магазина.</p>
+    {% endif %}
+
+    <p><strong>Дата рождения:</strong> {{ user_profile.birthday }}</p>
+    <p><strong>Дата трудоустройства:</strong> {{ user_profile.hire_date }}</p>
+
+    <!-- Кнопка для отправки письма -->
+    <a href="mailto:{{ user_profile.email }}" class="btn btn-primary">Написать письмо</a>
+
+    <!-- Кнопка для отправки сообщения в Telegram -->
+    <a href="tg://user?id={{ user_profile.telegram_chat_ID }}" class="btn btn-primary">Написать в Telegram</a>
+
+</div>
+{% endblock %}

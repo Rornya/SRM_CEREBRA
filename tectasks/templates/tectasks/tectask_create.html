@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Создать задачу{% endblock %}
+
+{% block content %}
+<h1>Создать новую задачу</h1>
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Отображение ошибок с красным цветом и увеличенным шрифтом -->
+    {% if form.errors %}
+        <div style="color: red; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Поле для заголовка -->
+    <label for="id_title">{{ form.title.label }}</label>
+    {{ form.title }} <br>
+
+    <!-- Поле для выбора отдела -->
+    <select id="id_department" name="department">
+        <option value="">Выберите отдел</option>
+        {% for department in departments %}
+            <option value="{{ department.id }}">{{ department.name }}</option>
+        {% endfor %}
+    </select> <br>
+
+    <!-- Поле для выбора исполнителя с динамической загрузкой -->
+    
+    <select id="id_assignee" name="assignee">
+        <option value="">Выберите исполнителя</option>
+    </select> <br>
+
+    <!-- Поле для дедлайна -->
+    <label for="id_deadline">{{ form.deadline.label }}</label>
+    {{ form.deadline }} <br>
+
+    <!-- Поле для описания задачи -->
+    <label for="id_description">{{ form.description.label }}</label>
+    {{ form.description }} <br>
+
+    <!-- Поле для выбора наблюдателей -->
+    <!-- <select id="id_observer" name="observer">
+        <option value="">Выберите наблюдателя</option>
+        {% for observer in observer_users %}
+            <option value="{{ observer.id }}">{{ observer.user.get_full_name }}</option>
+        {% endfor %}
+    </select> <br>-->
+
+    <button type="submit" class="btn btn-success">Создать задачу</button>
+</form>
+
+<p><a href="{% url 'tectask_list' %}">Вернуться к списку задач</a></p>
+
+<!-- Сценарий для динамического обновления списка исполнителей -->
+<script>
+    document.getElementById("id_department").onchange = function() {
+        var departmentId = this.value;
+        var assigneeField = document.getElementById("id_assignee");
+
+        // Отправляем запрос на сервер для обновления списка исполнителей
+        fetch("{% url 'tectask_create' %}?department_id=" + departmentId)
+            .then(response => response.json())
+            .then(data => {
+                assigneeField.innerHTML = '<option value="">Выберите исполнителя</option>';
+                data.assignees.forEach(function(assignee) {
+                    var option = document.createElement("option");
+                    option.value = assignee.id;
+                    option.textContent = assignee.full_name;
+                    assigneeField.appendChild(option);
+                });
+            });
+    };
+</script>
+{% endblock %}

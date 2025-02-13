@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Детали проекта{% endblock %}
+
+{% block content %}
+    <h1>{{ project.title }}</h1>
+    
+    <!-- Выводим сообщения об ошибках с кастомным стилем -->
+    {% if messages %}
+        <div style="color: red; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <h3>Инициатор: {{ project.manager.get_full_name }}</h3>
+
+    <hr>
+
+    <h2><p>{{ project.description|linebreaks }}</p></h2>
+
+    <hr>
+    
+    <p>Статус: {{ project.get_status_display }}</p>
+    <p>Дата создания: {{ project.created_at }}</p>
+    <p>Дата обновления: {{ project.updated_at }}</p>
+    <p>Дата окончания: {{ project.end_date }}</p>
+    <p>Процент выполнения: {{ project.completion_percentage|default:0 }}%</p>
+
+    
+    <!-- Кнопка для продления даты завершения проекта -->
+    {% if request.user == project.manager %}
+        <a href="{% url 'extend_project_end_date' project.id %}" class="btn btn-secondary me-2">Продлить дату завершения</a>
+    {% endif %}
+
+    <hr>
+
+    <h2>Участники проекта</h2>
+    <ul>
+        {% for participant in project.participants.all %}
+            <li>
+                {{ participant.user.get_full_name }} - {{ participant.role }}
+                {% if request.user == project.manager %}
+                    <a href="{% url 'remove_participant' project.id participant.id %}" class="btn btn-danger btn-sm me-2" onclick="return confirm('Вы уверены, что хотите удалить участника?');">Удалить</a>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>Участники пока не добавлены</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'add_participant_to_project' project.id %}" class="btn btn-secondary me-2">Добавить участника</a>
+    <hr>
+
+    <h2>Задачи проекта</h2>
+    <div class="mb-3">
+        <a href="{% url 'task_create' project.id %}" class="btn btn-primary">Создать задачу</a>
+        <a href="{% url 'task_list' project.id %}" class="btn btn-secondary">Список задач</a>
+    </div>
+    
+    {% if tasks %}
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Исполнитель</th>
+                    <th>Название задачи</th>
+                    <th>Статус</th>
+                    <th>Дедлайн</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                    <tr {% if task.status == 'completed' %}class="table-success"{% endif %}>
+                        <!-- Исполнитель задачи -->
+                        <td>
+                            <a href="{% url 'view_user_profile' task.assignee.id %}" 
+                               class="btn btn-warning btn-sm text-dark text-decoration-none">
+                                {{ task.assignee.get_full_name }}
+                            </a>
+                        </td>
+                        <!-- Название задачи -->
+                        <td>
+                            <a href="{% url 'task_detail' task_id=task.id %}" 
+                               class="text-decoration-none {% if task.status == 'completed' %}text-decoration-line-through{% endif %}">
+                                {{ task.title }}
+                            </a>
+                        </td>
+                        <!-- Статус задачи -->
+                        <td>{{ task.get_status_display }}</td>
+                        <!-- Дедлайн -->
+                        <td>
+                            {% if task.deadline %}
+                                {{ task.deadline|date:"d.m.Y" }}
+                            {% else %}
+                                <span class="text-muted">Не установлен</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">Нет задач для отображения.</div>
+    {% endif %}
+    
+    <hr>
+<!-- Контейнер для диаграммы Ганта -->
+<div id="gantt" style="width:100%; height:600px; margin-top: 20px; overflow-x: auto;"></div>
+
+<!-- Подключаем Frappe Gantt -->
+<link rel="stylesheet" href="https://unpkg.com/frappe-gantt/dist/frappe-gantt.css">
+<script src="https://unpkg.com/frappe-gantt/dist/frappe-gantt.umd.js"></script>
+
+<style>
+    /* Стили для задач и проекта */
+    .bar-blue .bar, .bar-blue .bar-progress { fill: #2196F3 !important; stroke: #2196F3 !important; } /* Синий цвет для задач */
+    .project-bar .bar, .project-bar .bar-progress { fill: #FF9800 !important; stroke: #FF9800 !important; } /* Оранжевый цвет для линии проекта */
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch("{% url 'project_tasks_api' project.id %}")
+            .then(response => response.json())
+            .then(tasks => {
+                // Добавляем линию проекта с классом `project-bar` для оранжевого цвета
+                tasks.unshift({
+                    id: 'project-line',
+                    name: '{{ project.title }}', // Название проекта
+                    start: "{{ project.created_at|date:'Y-m-d' }}", // Дата начала проекта
+                    end: "{{ project.end_date|date:'Y-m-d' }}", // Дата окончания проекта
+                    progress: 100,
+                    custom_class: 'project-bar' // Класс для оранжевого цвета проекта
+                });
+
+                // Применяем синий цвет ко всем задачам
+                tasks = tasks.map(task => ({
+                    ...task,
+                    custom_class: task.id === 'project-line' ? 'project-bar' : 'bar-blue' // Оранжевый цвет для проекта и синий для задач
+                }));
+
+                // Инициализация диаграммы Frappe Gantt
+                const gantt = new Gantt("#gantt", tasks, {
+                    view_mode: 'Day',
+                    language: 'ru'
+                });
+
+                // Прокручиваем диаграмму к сегодняшнему дню
+                const today = new Date();
+                gantt.set_scroll_position(today); // Устанавливаем прокрутку к сегодняшнему дню
+            })
+            .catch(error => console.error('Ошибка загрузки задач:', error));
+    });
+</script>
+
+    <hr>
+
+    {% if request.user == project.manager %}
+        <a href="{% url 'edit_project' project.id %}" class="btn btn-primary me-2">Редактировать</a>
+    {% endif %}
+
+    <hr>
+
+    <h2>Чат проекта</h2>
+    <div id="chat">
+        <ul>
+            {% for message in chat_messages %}
+                <li>
+                    <strong>{{ message.user.get_full_name }}:</strong>
+                    <span>{{ message.message|linebreaks }}</span>
+                    <em>{{ message.created_at }}</em>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <form method="post" class="d-inline-block me-2">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="add_message" class="btn btn-primary">Отправить сообщение</button>
+    </form>
+    
+    <hr>
+    
+
+    <h2>Загрузить файл</h2>
+    <form method="post" enctype="multipart/form-data" class="d-inline-block me-2">
+        {% csrf_token %}
+        {{ attachment_form.as_p }}
+        <button type="submit" name="upload_file" class="btn btn-primary">Загрузить файл</button>
+    </form>
+
+    <h2>Прикрепленные файлы</h2>
+    <ul>
+        {% for attachment in project.attachments.all %}
+        <li><a href="{{ attachment.file.url }}">{{ attachment.file.name|cut:"attachments/" }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <hr>
+
+    {% if project.manager == request.user and project.status != 'completed' %}
+        <form method="post" action="{% url 'complete_project' project.id %}" class="d-inline-block me-2" onsubmit="return confirm('Вы уверены, что хотите завершить проект?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Завершить проект</button>
+        </form>
+    {% else %}
+        <p>Проект завершен</p>
+    {% endif %}
+    
+    <a href="{% url 'project_list' %}" class="btn btn-primary d-inline-block me-2">Вернуться к списку проектов</a>
+
+{% endblock %}

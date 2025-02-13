@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Статистика по отделам{% endblock %}
+
+{% block content %}
+<h1 style="text-align: center; margin-bottom: 30px;">Статистика сотрудников по отделам</h1>
+
+{% if request.user.userprofile.full_statistics %}
+<div style="display: flex; justify-content: center;">
+    <ul style="list-style-type: none; padding: 0; width: 100%; max-width: 800px;">
+        {% for department in departments %}
+        <li style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        ">
+            <!-- Отображение названия отдела -->
+            <span style="font-weight: bold; font-size: 16px;">{{ department.name }}</span>
+            <!-- Кнопка для перехода -->
+            <a href="{% url 'department_employee_statistics' department.id %}"
+               class="btn btn-info"
+               style="padding: 5px 15px; font-size: 14px;">
+                Сводка по сотрудникам
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% else %}
+<p style="text-align: center;">У вас нет прав для просмотра этой информации.</p>
+{% endif %}
+{% endblock %}
